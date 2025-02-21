@@ -4,7 +4,11 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>Laravel</title>
+<<<<<<< HEAD
+        <title>This is Luke's Page!!</title>
+=======
+        <title>This is Luke's Page!</title>
+>>>>>>> 79a975492436971f97b70b264263dd02e680052d
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
