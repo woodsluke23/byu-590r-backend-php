@@ -63,4 +63,3 @@ class BaseController extends Controller
         return $s3->temporaryUrl($path, now()->addMinutes($minutes));
     }
 }
-
