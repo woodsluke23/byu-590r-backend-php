@@ -22,4 +22,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Resource route for RestaurantController
     Route::resource('restaurants', RestaurantController::class);
+    Route::controller(RestaurantController::class)->group(function() {
+        Route::post('restaurants/{id}/update_restaurant_picture', 'updateRestaurantPicture');
+    });
 });
