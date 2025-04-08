@@ -59,7 +59,7 @@ class RestaurantController extends BaseController
 
         $restaurant->restaurant_name = $request['restaurant_name'];
         $restaurant->restaurant_description = $request['restaurant_description'];
-        $restaurant->img = $request['img'];
+        // $restaurant->img = $request['img'];
 
         $restaurant->save();
 
