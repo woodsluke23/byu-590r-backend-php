@@ -31,7 +31,7 @@ class RestaurantController extends BaseController
 
         $validator = Validator::make($request->all(), [
             'restaurant_name' => 'required',
-            // 'img' => 'required|image|mimes:jpeg,png,jpg,gif,svg'
+            'file' => 'required|image|mimes:jpeg,png,jpg,gif,svg'
         ]);
 
         if($validator->fails()) {
@@ -40,76 +40,11 @@ class RestaurantController extends BaseController
 
         $restaurant = new Restaurant;
 
-        if ($request->hasFile('img')) {
+        if ($request->hasFile('file')) {
 
-            $extenstion = request()->file('img')->getClientOriginalExtension();
+            $extenstion = request()->file('file')->getClientOriginalExtension();
             $image_name = time() .'_restraunt_cover.' .$extenstion;
-            $path = $request->file('img')->storeAs(
-                'images',
-                $image_name,
-                's3'
-            );
-            Storage::disk('s3')->setVisibility($path, "public");
-            if(!$path) {
-                return $this->sendError($path, 'Restaurant logo has failed to upload');
-            } 
-
-            $restaurant->img = $path;
-        }
-
-        $restaurant->restaurant_name = $request['restaurant_name'];
-        $restaurant->restaurant_description = $request['restaurant_description'];
-        // $restaurant->img = $request['img'];
-
-        $restaurant->save();
-
-        if(isset($restaurant->img)) {
-            $restaurant->img = $this->getS3Url($restaurant->img);
-        }
-        $success['restaurant'] = $restaurant;
-        return $this->sendResponse($success, 'Restaurant Uploaded');
-    }
-
-    public function update(Request $request, $id) {
-        $validator = Validator::make($request->all(), [
-            'restaurant_name' => 'required',
-            // 'img' => 'required|image|mimes:jpeg,png,jpg,gif,svg' 
-        ]);
-
-        if($validator->fails()) {
-            return $this->sendError('Validation Error', $validator->errors());
-        }
-
-        $restaurant = Restaurant::findOrFail($id);
-        $restaurant->restaurant_name = $request['restaurant_name'];
-        $restaurant->restaurant_description = $request['restaurant_description'];
-        $restaurant->img = $request['img'];
-
-        $restaurant->save();
-
-        if(isset($restaurant->file)) {
-            $restaurant->img = $this->getS3Url($restaurant->img);
-        }
-        $success['restaurant'] = $restaurant;
-        return $this->sendResponse($success, 'Restaurant Succesfully Updated!');
-    }
-
-    public function updateBookPicture(Request $request, $id) {
-        $validator = Validator::make($request->all(), [
-            // 'img' => 'required|image|mimes:jpeg,png,jpg,gif,svg'
-        ]);
-
-        if($validator->fails()) {
-            return $this->sendError('Validation Error', $validator->errors());
-        }
-
-        $restaurant = Restaurant::findOrFail($id);
-
-        if ($request->hasFile('img')) {
-
-            $extenstion = request()->file('img')->getClientOriginalExtension();
-            $image_name = time() .'_restraunt_cover.' .$extenstion;
-            $path = $request->file('img')->storeAs(
+            $path = $request->file('file')->storeAs(
                 'images',
                 $image_name,
                 's3'
@@ -120,10 +55,76 @@ class RestaurantController extends BaseController
             } 
 
             $restaurant->file = $path;
-
-            $restaurant->save();
-
         }
+
+        $restaurant->restaurant_name = $request['restaurant_name'];
+        $restaurant->restaurant_description = $request['restaurant_description'];
+        // $restaurant->file = $request['file'];
+
+        $restaurant->save();
+
+        if(isset($restaurant->file)) {
+            $restaurant->file = $this->getS3Url($restaurant->file);
+        }
+        $success['restaurant'] = $restaurant;
+        return $this->sendResponse($success, 'Restaurant Uploaded');
+    }
+
+    public function update(Request $request, $id) {
+        $validator = Validator::make($request->all(), [
+            'restaurant_name' => 'required',
+        ]);
+
+        if($validator->fails()) {
+            return $this->sendError('Validation Error', $validator->errors());
+        }
+
+        $restaurant = Restaurant::findOrFail($id);
+        $restaurant->restaurant_name = $request['restaurant_name'];
+        $restaurant->restaurant_description = $request['restaurant_description'];
+
+        $restaurant->save();
+
+        $success['restaurant'] = $restaurant;
+        return $this->sendResponse($success, 'Restaurant Succesfully Updated!');
+    }
+
+    public function updateRestaurantPicture(Request $request, $id) {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|image|mimes:jpeg,png,jpg,gif,svg'
+        ]);
+
+        if($validator->fails()){
+            return $this->sendError('Validation Error.', $validator->errors());       
+        }
+
+        $restaurant = Restaurant::findOrFail($id);
+
+        if ($request->hasFile('file')) {
+        
+            $extension  = request()->file('file')->getClientOriginalExtension(); //This is to get the extension of the image file just uploaded
+            $image_name = time() .'_restaurant.' . $extension;
+            $path = $request->file('file')->storeAs(
+                'images',
+                $image_name,
+                's3'
+            );
+            Storage::disk('s3')->setVisibility($path, "public");
+            if(!$path) {
+                return $this->sendError($path, 'Restaurant picture failed to upload!');
+            }
+            
+            $restaurant->file = $path;
+
+        } 
+        $restaurant->save();
+
+
+        if(isset($restaurant->file)){
+            $restaurant->file = $this->getS3Url($restaurant->file);
+        }
+        $success['restaurant'] = $restaurant;
+        return $this->sendResponse($success, 'Restaurant picture successfully updated!');
     }
 
     public function destroy($id) {

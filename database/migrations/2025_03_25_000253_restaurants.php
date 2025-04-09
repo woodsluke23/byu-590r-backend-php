@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('restaurant_name')->unique();
             $table->string('restaurant_description')->nullable();
             $table->string('favorite_meal')->nullable();
-            $table->string('img')->nullable();
+            $table->string('file')->nullable();
             $table->timestamps();
         });
     }
