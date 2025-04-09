@@ -31,7 +31,7 @@ class RestaurantController extends BaseController
 
         $validator = Validator::make($request->all(), [
             'restaurant_name' => 'required',
-            'file' => 'required|image|mimes:jpeg,png,jpg,gif,svg'
+            'file' => 'required|image|mimes:jpeg,png,jpg,gif,svg,JPEG,PNG,JPG,GIF,SVG'
         ]);
 
         if($validator->fails()) {
@@ -59,7 +59,6 @@ class RestaurantController extends BaseController
 
         $restaurant->restaurant_name = $request['restaurant_name'];
         $restaurant->restaurant_description = $request['restaurant_description'];
-        // $restaurant->file = $request['file'];
 
         $restaurant->save();
 
