@@ -16,7 +16,7 @@ class RestaurantController extends BaseController
     public function index()
     {
         // Retrieve all restaurants
-        $restaurants = Restaurant::get(); 
+        $restaurants = Restaurant::with(['sauce', 'chickenType'])->get();
 
         // Iterate over each restaurant and update the file URL using inherited getS3Url method
         foreach($restaurants as $restaurant) {
