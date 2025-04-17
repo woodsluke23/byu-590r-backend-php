@@ -31,6 +31,8 @@ class RegisterController extends BaseController
    
         return $this->sendResponse($success, 'User register successfully.');
     }
+
+  
    
     public function login(Request $request) {
         if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){ 

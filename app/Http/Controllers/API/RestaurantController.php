@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use App\Models\ChickenType;
 
 class RestaurantController extends BaseController
 {
@@ -59,6 +60,7 @@ class RestaurantController extends BaseController
 
         $restaurant->restaurant_name = $request['restaurant_name'];
         $restaurant->restaurant_description = $request['restaurant_description'];
+        $restaurant->chicken_type_id = $request['chicken_type_id'];
 
         $restaurant->save();
 
@@ -81,6 +83,7 @@ class RestaurantController extends BaseController
         $restaurant = Restaurant::findOrFail($id);
         $restaurant->restaurant_name = $request['restaurant_name'];
         $restaurant->restaurant_description = $request['restaurant_description'];
+        $restaurant->chicken_type_id = $request['chicken_type_id'];
 
         $restaurant->save();
 
@@ -140,6 +143,12 @@ class RestaurantController extends BaseController
     
         $success['restaurant']['id'] = $id;
         return $this->sendResponse($success, 'Restaurant Deleted');
+    }
+
+    public function getChickenTypes()
+    {
+        $chickenTypes = ChickenType::all();
+        return $this->sendResponse($chickenTypes, 'Chicken Types');
     }
     
 }

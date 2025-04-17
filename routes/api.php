@@ -25,4 +25,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::controller(RestaurantController::class)->group(function() {
         Route::post('restaurants/{id}/update_restaurant_picture', 'updateRestaurantPicture');
     });
+    Route::get('chicken-types', [RestaurantController::class, 'getChickenTypes']);
 });
