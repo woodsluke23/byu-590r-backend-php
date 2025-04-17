@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use App\Models\ChickenType;
+use App\Models\Sauce;
 
 class RestaurantController extends BaseController
 {
@@ -32,11 +33,21 @@ class RestaurantController extends BaseController
 
         $validator = Validator::make($request->all(), [
             'restaurant_name' => 'required',
-            'file' => 'required|image|mimes:jpeg,png,jpg,gif,svg,JPEG,PNG,JPG,GIF,SVG'
+            'file' => 'required|image|mimes:jpeg,png,jpg,gif,svg,JPEG,PNG,JPG,GIF,SVG',
+            'sauce_name' => 'required_if:has_sauce,true',
         ]);
 
         if($validator->fails()) {
             return $this->sendError('Validation Error', $validator->errors());
+        }
+
+        $sauce_id = null;
+        if($request->has('sauce_name') && !empty($request['sauce_name'])) {
+            $sauce = new Sauce();
+            $sauce->sauce_name = $request['sauce_name'];
+            $sauce->save();
+            
+            $sauce_id = $sauce->id;
         }
 
         $restaurant = new Restaurant;
@@ -61,6 +72,7 @@ class RestaurantController extends BaseController
         $restaurant->restaurant_name = $request['restaurant_name'];
         $restaurant->restaurant_description = $request['restaurant_description'];
         $restaurant->chicken_type_id = $request['chicken_type_id'];
+        $restaurant->sauce_id = $sauce_id;
 
         $restaurant->save();
 
@@ -84,6 +96,20 @@ class RestaurantController extends BaseController
         $restaurant->restaurant_name = $request['restaurant_name'];
         $restaurant->restaurant_description = $request['restaurant_description'];
         $restaurant->chicken_type_id = $request['chicken_type_id'];
+
+        if ($restaurant->sauce_id && $request->has('sauce_name')) {
+            // Update existing sauce
+            $sauce = Sauce::findOrFail($restaurant->sauce_id);
+            $sauce->sauce_name = $request['sauce_name'];
+            $sauce->save();
+        } else if ($request->has('sauce_name') && !empty($request['sauce_name'])) {
+            // Create new sauce
+            $sauce = new Sauce();
+            $sauce->sauce_name = $request['sauce_name'];
+            $sauce->save();
+            
+            $restaurant->sauce_id = $sauce->id;
+        }
 
         $restaurant->save();
 
@@ -131,18 +157,26 @@ class RestaurantController extends BaseController
 
     public function destroy($id) {
         $restaurant = Restaurant::findOrFail($id);
-    
+        
+        // First check if there's an associated sauce
+        if ($restaurant->sauce_id) {
+            // Find and delete the associated sauce
+            $sauce = Sauce::findOrFail($restaurant->sauce_id);
+            $sauce->delete();
+        }
+        
         // Ensure that the file exists before attempting to delete it
         if ($restaurant->file) {
             Storage::disk('s3')->delete($restaurant->file);
         } else {
             Log::warning('No file found to delete for restaurant ID: ' . $id);
         }
-    
+        
+        // Now delete the restaurant
         $restaurant->delete();
-    
+        
         $success['restaurant']['id'] = $id;
-        return $this->sendResponse($success, 'Restaurant Deleted');
+        return $this->sendResponse($success, 'Restaurant and Associated Data Deleted');
     }
 
     public function getChickenTypes()
